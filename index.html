@@ -14,6 +14,7 @@
     let nodes = [];
     let playInterval = null;
 
+    // --- Memory functions ---
     function saveToMemory() {
       const text = document.getElementById("mermaidInput").value;
       localStorage.setItem("flowchartCode", text);
@@ -24,6 +25,25 @@
       if (saved) document.getElementById("mermaidInput").value = saved;
     }
 
+    // --- Share link encoding/decoding ---
+    function encodeFlowchart(text) {
+      return btoa(unescape(encodeURIComponent(text)));
+    }
+
+    function decodeFlowchart(encoded) {
+      try {
+        return decodeURIComponent(escape(atob(encoded)));
+      } catch {
+        return null;
+      }
+    }
+
+    function getURLParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    // --- Core rendering logic ---
     window.renderMermaid = () => {
       const textarea = document.getElementById("mermaidInput");
       const output = document.getElementById("mermaidOutput");
@@ -44,6 +64,7 @@
         });
     };
 
+    // --- Highlighting ---
     function highlightStep() {
       if (!nodes.length) return;
       nodes.forEach(n => (n.style.filter = "none"));
@@ -67,6 +88,7 @@
       highlightStep();
     };
 
+    // --- Animation ---
     window.playAnimation = () => {
       if (playInterval) {
         clearInterval(playInterval);
@@ -87,6 +109,7 @@
       }, 1000);
     };
 
+    // --- Export as PNG ---
     window.exportPNG = () => {
       const svg = document.querySelector("#mermaidOutput svg");
       if (!svg) return alert("No diagram to export!");
@@ -109,8 +132,25 @@
       img.src = url;
     };
 
+    // --- Share link ---
+    window.shareFlowchart = () => {
+      const text = document.getElementById("mermaidInput").value.trim();
+      if (!text) return alert("Please enter some flowchart code first!");
+      const encoded = encodeFlowchart(text);
+      const shareURL = `${window.location.origin}${window.location.pathname}?data=${encoded}`;
+      navigator.clipboard.writeText(shareURL);
+      alert("✅ Share link copied to clipboard:\n\n" + shareURL);
+    };
+
+    // --- On page load ---
     window.addEventListener("DOMContentLoaded", () => {
-      loadFromMemory();
+      const sharedData = getURLParam("data");
+      if (sharedData) {
+        const decoded = decodeFlowchart(sharedData);
+        if (decoded) document.getElementById("mermaidInput").value = decoded;
+      } else {
+        loadFromMemory();
+      }
       renderMermaid();
     });
   </script>
@@ -157,10 +197,10 @@
 
 <body>
   <h1>🧭 Interactive Flowchart Tutor</h1>
-  <p>Type Mermaid code below and click <b>Generate Flowchart</b>. Then step through or auto-play it!</p>
+  <p>Generate, Animate, Share & Export your flowcharts – perfect for students and teachers!</p>
 
   <textarea id="mermaidInput">flowchart TD
-    A([Start]) --> B[Input n]
+    A([Start]) --> B[Input number n]
     B --> C{Is n % 2 == 0?}
     C -->|Yes| D[Print 'Even']
     C -->|No| E[Print 'Odd']
@@ -175,6 +215,7 @@
   <button id="playBtn" onclick="playAnimation()">▶️ Play Animation</button>
   <button onclick="resetSteps()">⏮️ Reset</button>
   <button onclick="exportPNG()">🖼️ Export PNG</button>
+  <button onclick="shareFlowchart()">🔗 Share Flowchart</button>
 
   <div id="mermaidOutput"></div>
 </body>
