@@ -2,19 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>My Flowchart Generator</title>
+  <title>🧭 My Flowchart Generator</title>
 
-  <!-- ✅ Mermaid v11.12.1 (latest) -->
+  <!-- ✅ Use stable Mermaid 11.2.0 -->
   <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({ startOnLoad: false, theme: 'default' });
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
+    mermaid.initialize({ startOnLoad: false, theme: "default" });
 
     window.renderMermaid = () => {
-      // Clean up text so Mermaid never throws syntax errors
-      const code = document.getElementById("mermaidInput")
-        .value
+      let code = document.getElementById("mermaidInput").value;
+
+      // 🧹 Clean up invisible spaces & line breaks
+      code = code
         .trim()
-        .replace(/^\s*\n/, "");  // remove blank first line
+        .replace(/^\s*\n/, "") // remove first blank line
+        .replace(/\r/g, "");   // remove carriage returns (Windows bug)
+
+      // Automatically insert 'flowchart TD' if missing
+      if (!/^flowchart\s+/i.test(code)) {
+        code = "flowchart TD\n" + code;
+      }
 
       const output = document.getElementById("mermaidOutput");
       output.innerHTML = code;
@@ -22,7 +29,7 @@
       try {
         mermaid.run({ nodes: [output] });
       } catch (err) {
-        output.innerHTML = `<p style="color:red;">❌ Mermaid syntax error:<br>${err.message}</p>`;
+        output.innerHTML = `<p style="color:red;">❌ Syntax error:<br>${err.message}</p>`;
       }
     };
 
@@ -38,7 +45,7 @@
     }
     textarea {
       width: 90%;
-      height: 220px;
+      height: 240px;
       font-family: monospace;
       font-size: 15px;
       border-radius: 8px;
@@ -64,7 +71,7 @@
       padding: 20px;
       border-radius: 12px;
       margin-top: 20px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
       text-align: left;
       overflow-x: auto;
     }
@@ -86,7 +93,8 @@
     H --> I[b = next]
     I --> J[i = i + 1]
     J --> E
-    E -->|No| K([End])</textarea>
+    E -->|No| K([End])
+  </textarea>
 
   <br />
   <button onclick="renderMermaid()">Generate Flowchart</button>
