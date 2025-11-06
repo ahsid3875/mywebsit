@@ -3,40 +3,66 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🧭 My Flowchart Generator</title>
+  <title>🧭 Educational Flowchart Generator</title>
 
-  <!-- ✅ Mermaid v11 Stable -->
+  <!-- ✅ Mermaid v11 -->
   <script type="module">
     import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
-
-    // Initialize Mermaid once
     mermaid.initialize({ startOnLoad: false, theme: "default" });
 
     window.renderMermaid = () => {
       const textarea = document.getElementById("mermaidInput");
       const output = document.getElementById("mermaidOutput");
-
-      // ✅ Clean code: convert tabs to spaces, normalize line endings
-      let code = textarea.value
-        .replace(/\t/g, "    ")
-        .replace(/\r/g, "")
-        .trim();
-
-      // ✅ Ensure each connection has a newline (to prevent line merging)
-      code = code.replace(/](?=\s*[A-Za-z(])/g, "]\n");
-
-      // ✅ Add flowchart header if missing
-      if (!/^flowchart\s+/i.test(code)) {
-        code = "flowchart TD\n" + code;
-      }
-
-      // ✅ Inject diagram
+      let code = textarea.value.replace(/\t/g, "    ").trim().replace(/\r/g, "");
+      if (!/^flowchart\s+/i.test(code)) code = "flowchart TD\n" + code;
       output.innerHTML = `<div class="mermaid">${code}</div>`;
-
-      // ✅ Try rendering
       mermaid.run({ nodes: output.querySelectorAll(".mermaid") }).catch(err => {
-        output.innerHTML = `<p style="color:red;">❌ Error: ${err.message}</p>`;
+        output.innerHTML = `<p style='color:red;'>❌ Error: ${err.message}</p>`;
       });
     };
+    window.addEventListener("DOMContentLoaded", () => renderMermaid());
+  </script>
 
-    // Auto-render default diagr
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f8fafc; padding: 20px; text-align: center; }
+    textarea { width: 90%; height: 220px; font-family: monospace; font-size: 15px;
+      border-radius: 8px; border: 1px solid #ccc; padding: 10px; resize: vertical; }
+    button, input[type="submit"] {
+      margin-top: 10px; padding: 10px 20px; border: none; border-radius: 6px;
+      background-color: #2563eb; color: white; cursor: pointer; font-size: 15px;
+    }
+    button:hover, input[type="submit"]:hover { background-color: #1d4ed8; }
+    #mermaidOutput {
+      background: #fff; padding: 20px; border-radius: 12px; margin-top: 20px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); text-align: left; overflow-x: auto;
+    }
+    form { margin-top: 20px; background: #f1f5f9; padding: 15px; border-radius: 10px; display: inline-block; }
+  </style>
+</head>
+
+<body>
+  <h1>🧭 Educational Flowchart Generator</h1>
+  <p>Type Mermaid code below and click <b>Generate Flowchart</b></p>
+
+  <textarea id="mermaidInput">flowchart TD
+    A([Start]) --> B[Input a number]
+    B --> C{Is a even?}
+    C -->|Yes| D[Print 'Even']
+    C -->|No| E[Print 'Odd']
+    D --> F([End])
+    E --> F
+  </textarea>
+  <br />
+  <button onclick="renderMermaid()">Generate Flowchart</button>
+
+  <div id="mermaidOutput"></div>
+
+  <!-- 🌐 Upload form -->
+  <form action="https://formspree.io/f/your_form_id" method="POST" enctype="multipart/form-data">
+    <h3>📤 Upload Your Flowchart File</h3>
+    <input type="email" name="email" placeholder="Your email (for confirmation)" required><br><br>
+    <input type="file" name="flowchartFile" accept=".txt,.md,.mmd,.html" required><br><br>
+    <input type="submit" value="Send to Teacher" />
+  </form>
+</body>
+</html>
