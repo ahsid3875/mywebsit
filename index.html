@@ -3,21 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <title>My Flowchart Generator</title>
+
+  <!-- ✅ Mermaid v11.12.1 (latest) -->
   <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs';
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad: false, theme: 'default' });
 
     window.renderMermaid = () => {
-      const code = document.getElementById("mermaidInput").value;
+      // Clean up text so Mermaid never throws syntax errors
+      const code = document.getElementById("mermaidInput")
+        .value
+        .trim()
+        .replace(/^\s*\n/, "");  // remove blank first line
+
       const output = document.getElementById("mermaidOutput");
       output.innerHTML = code;
 
       try {
         mermaid.run({ nodes: [output] });
       } catch (err) {
-        output.innerHTML = `<p style="color:red;">❌ Error: ${err.message}</p>`;
+        output.innerHTML = `<p style="color:red;">❌ Mermaid syntax error:<br>${err.message}</p>`;
       }
     };
+
+    window.addEventListener("DOMContentLoaded", () => renderMermaid());
   </script>
 
   <style>
@@ -29,7 +38,7 @@
     }
     textarea {
       width: 90%;
-      height: 200px;
+      height: 220px;
       font-family: monospace;
       font-size: 15px;
       border-radius: 8px;
@@ -45,6 +54,7 @@
       background-color: #2563eb;
       color: white;
       cursor: pointer;
+      font-size: 15px;
     }
     button:hover {
       background-color: #1d4ed8;
@@ -66,18 +76,17 @@
   <p>Type Mermaid code below and click <b>Generate Flowchart</b></p>
 
   <textarea id="mermaidInput">flowchart TD
-A([Start]) --> B[Initialize a = 0, b = 1]
-B --> C[Input n (number of terms)]
-C --> D[Set i = 0]
-D --> E{Is i < n?}
-E -->|Yes| F[Print a]
-F --> G[Next = a + b]
-G --> H[a = b]
-H --> I[b = next]
-I --> J[i = i + 1]
-J --> E
-E -->|No| K([End])
-</textarea>
+    A([Start]) --> B[Initialize a = 0, b = 1]
+    B --> C[Input n (number of terms)]
+    C --> D[Set i = 0]
+    D --> E{Is i < n?}
+    E -->|Yes| F[Print a]
+    F --> G[Next = a + b]
+    G --> H[a = b]
+    H --> I[b = next]
+    I --> J[i = i + 1]
+    J --> E
+    E -->|No| K([End])</textarea>
 
   <br />
   <button onclick="renderMermaid()">Generate Flowchart</button>
