@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🧭 My Flowchart Generator</title>
 
-  <!-- ✅ Mermaid v11 stable build -->
+  <!-- ✅ Mermaid v11 (Stable) -->
   <script type="module">
     import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
 
@@ -15,8 +16,13 @@
       const textarea = document.getElementById("mermaidInput");
       const output = document.getElementById("mermaidOutput");
 
-      // Clean and prepare code
-      let code = textarea.value.trim().replace(/\r/g, "");
+      // Clean and normalize indentation (convert tabs → 4 spaces)
+      let code = textarea.value
+        .replace(/\t/g, "    ") // replace tabs with 4 spaces
+        .trim()
+        .replace(/\r/g, "");
+
+      // Add flowchart TD if missing
       if (!/^flowchart\s+/i.test(code)) {
         code = "flowchart TD\n" + code;
       }
@@ -24,12 +30,13 @@
       // Clear old diagram
       output.innerHTML = `<div class="mermaid">${code}</div>`;
 
-      // Render with Mermaid
+      // Render the new diagram
       mermaid.run({ nodes: output.querySelectorAll(".mermaid") }).catch(err => {
         output.innerHTML = `<p style="color:red;">❌ Error: ${err.message}</p>`;
       });
     };
 
+    // Auto-render default diagram
     window.addEventListener("DOMContentLoaded", () => renderMermaid());
   </script>
 
@@ -80,18 +87,18 @@
   <p>Type Mermaid code below and click <b>Generate Flowchart</b></p>
 
   <textarea id="mermaidInput">flowchart TD
-A([Start]) --> B[Initialize a = 0, b = 1]
-B --> C[Input n (number of terms)]
-C --> D[Set i = 0]
-D --> E{Is i < n?}
-E -->|Yes| F[Print a]
-F --> G[Next = a + b]
-G --> H[a = b]
-H --> I[b = next]
-I --> J[i = i + 1]
-J --> E
-E -->|No| K([End])
-</textarea>
+    A([Start]) --> B[Initialize a = 0, b = 1]
+    B --> C[Input n (number of terms)]
+    C --> D[Set i = 0]
+    D --> E{Is i < n?}
+    E -->|Yes| F[Print a]
+    F --> G[Next = a + b]
+    G --> H[a = b]
+    H --> I[b = next]
+    I --> J[i = i + 1]
+    J --> E
+    E -->|No| K([End])
+  </textarea>
 
   <br />
   <button onclick="renderMermaid()">Generate Flowchart</button>
