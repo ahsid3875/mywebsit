@@ -1,49 +1,87 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Fibonacci Flowchart</title>
+  <meta charset="UTF-8" />
+  <title>My Flowchart Generator</title>
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    mermaid.initialize({ startOnLoad: false, theme: 'default' });
+
+    window.renderMermaid = () => {
+      const code = document.getElementById("mermaidInput").value;
+      const output = document.getElementById("mermaidOutput");
+      output.innerHTML = code;
+
+      try {
+        mermaid.run({ nodes: [output] });
+      } catch (err) {
+        output.innerHTML = `<p style="color:red;">❌ Error: ${err.message}</p>`;
+      }
+    };
   </script>
+
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: #f8fafc;
-      padding: 30px;
-    }
-    h1 {
-      color: #333;
+      padding: 20px;
       text-align: center;
     }
-    .mermaid {
+    textarea {
+      width: 90%;
+      height: 200px;
+      font-family: monospace;
+      font-size: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      resize: vertical;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      background-color: #2563eb;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1d4ed8;
+    }
+    #mermaidOutput {
       background: #fff;
       padding: 20px;
       border-radius: 12px;
-      max-width: 700px;
-      margin: 20px auto;
+      margin-top: 20px;
       box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      text-align: left;
+      overflow-x: auto;
     }
   </style>
 </head>
+
 <body>
-  <h1>Fibonacci Series Flowchart</h1>
+  <h1>🧭 My Flowchart Generator</h1>
+  <p>Type Mermaid code below and click <b>Generate Flowchart</b></p>
 
-  <div class="mermaid">
-flowchart TD
-    A([Start]) --> B[Initialize a = 0 and b = 1]
-    B --> C[Input n (number of terms)]
-    C --> D[Set i = 0]
-    D --> E{Is i < n?}
-    E -->|Yes| F[Print a]
-    F --> G[Set next = a + b]
-    G --> H[Set a = b]
-    H --> I[Set b = next]
-    I --> J[Increment i by 1]
-    J --> E
-    E -->|No| K([End])
-  </div>
+  <textarea id="mermaidInput">flowchart TD
+A([Start]) --> B[Initialize a = 0, b = 1]
+B --> C[Input n (number of terms)]
+C --> D[Set i = 0]
+D --> E{Is i < n?}
+E -->|Yes| F[Print a]
+F --> G[Next = a + b]
+G --> H[a = b]
+H --> I[b = next]
+I --> J[i = i + 1]
+J --> E
+E -->|No| K([End])
+</textarea>
 
+  <br />
+  <button onclick="renderMermaid()">Generate Flowchart</button>
+
+  <div id="mermaidOutput" class="mermaid"></div>
 </body>
 </html>
