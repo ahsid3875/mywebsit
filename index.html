@@ -8,9 +8,20 @@
     mermaid.initialize({ startOnLoad: true, theme: 'default' });
   </script>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f7f9fc; }
-    h1 { color: #333; }
-    .mermaid { background: #fff; padding: 1em; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f7f9fc;
+    }
+    h1 {
+      color: #333;
+    }
+    .mermaid {
+      background: #fff;
+      padding: 1em;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
   </style>
 </head>
 <body>
@@ -18,7 +29,7 @@
 
   <div class="mermaid">
   flowchart TD
-      A[Start] --> B[Initialize a = 0, b = 1]
+      A([Start]) --> B[Initialize a = 0, b = 1]
       B --> C[Input n (number of terms)]
       C --> D[Set i = 0]
       D --> E{Is i < n?}
@@ -28,7 +39,7 @@
       H --> I[b = next]
       I --> J[i = i + 1]
       J --> E
-      E -->|No| K[End]
+      E -->|No| K([End])
   </div>
 </body>
 </html>
