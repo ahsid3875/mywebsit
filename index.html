@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🧭 My Flowchart Generator</title>
 
-  <!-- ✅ Mermaid v11 (Stable) -->
+  <!-- ✅ Mermaid v11 Stable -->
   <script type="module">
     import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
 
@@ -16,27 +16,30 @@
       const textarea = document.getElementById("mermaidInput");
       const output = document.getElementById("mermaidOutput");
 
-      // Clean and normalize indentation (convert tabs → 4 spaces)
+      // ✅ Clean indentation — convert tabs to 4 spaces and normalize line breaks
       let code = textarea.value
-        .replace(/\t/g, "    ") // replace tabs with 4 spaces
-        .trim()
-        .replace(/\r/g, "");
+        .replace(/\t/g, "    ")
+        .replace(/\r/g, "")
+        .trim();
 
-      // Add flowchart TD if missing
+      // ✅ Ensure each shape is on its own line
+      code = code.replace(/](?=[A-Za-z(])/g, "]\n");
+
+      // ✅ Automatically add flowchart type if missing
       if (!/^flowchart\s+/i.test(code)) {
         code = "flowchart TD\n" + code;
       }
 
-      // Clear old diagram
+      // ✅ Clear old diagram
       output.innerHTML = `<div class="mermaid">${code}</div>`;
 
-      // Render the new diagram
+      // ✅ Render new Mermaid diagram
       mermaid.run({ nodes: output.querySelectorAll(".mermaid") }).catch(err => {
         output.innerHTML = `<p style="color:red;">❌ Error: ${err.message}</p>`;
       });
     };
 
-    // Auto-render default diagram
+    // Auto-render once loaded
     window.addEventListener("DOMContentLoaded", () => renderMermaid());
   </script>
 
