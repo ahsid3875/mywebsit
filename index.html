@@ -2,25 +2,28 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>My Mermaid Flowchart</title>
+  <title>Fibonacci Flowchart</title>
   <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs';
     mermaid.initialize({ startOnLoad: true, theme: 'default' });
   </script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 20px;
-      background: #f7f9fc;
+      background-color: #f8fafc;
+      padding: 30px;
     }
     h1 {
       color: #333;
+      text-align: center;
     }
     .mermaid {
       background: #fff;
-      padding: 1em;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 700px;
+      margin: 20px auto;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
     }
   </style>
 </head>
@@ -28,18 +31,19 @@
   <h1>Fibonacci Series Flowchart</h1>
 
   <div class="mermaid">
-  flowchart TD
-      A([Start]) --> B[Initialize a = 0, b = 1]
-      B --> C[Input n (number of terms)]
-      C --> D[Set i = 0]
-      D --> E{Is i < n?}
-      E -->|Yes| F[Print a]
-      F --> G[Next = a + b]
-      G --> H[a = b]
-      H --> I[b = next]
-      I --> J[i = i + 1]
-      J --> E
-      E -->|No| K([End])
+flowchart TD
+    A([Start]) --> B[Initialize a = 0 and b = 1]
+    B --> C[Input n (number of terms)]
+    C --> D[Set i = 0]
+    D --> E{Is i < n?}
+    E -->|Yes| F[Print a]
+    F --> G[Set next = a + b]
+    G --> H[Set a = b]
+    H --> I[Set b = next]
+    I --> J[Increment i by 1]
+    J --> E
+    E -->|No| K([End])
   </div>
+
 </body>
 </html>
