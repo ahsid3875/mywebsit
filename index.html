@@ -3,44 +3,116 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🧭 My Flowchart Generator</title>
+  <title>🧭 Interactive Flowchart Tutor</title>
 
-  <!-- ✅ Mermaid v11 Stable -->
+  <!-- ✅ Mermaid v11 -->
   <script type="module">
     import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
-
-    // Initialize Mermaid once
     mermaid.initialize({ startOnLoad: false, theme: "default" });
+
+    let stepIndex = 0;
+    let nodes = [];
+    let playInterval = null;
+
+    function saveToMemory() {
+      const text = document.getElementById("mermaidInput").value;
+      localStorage.setItem("flowchartCode", text);
+    }
+
+    function loadFromMemory() {
+      const saved = localStorage.getItem("flowchartCode");
+      if (saved) document.getElementById("mermaidInput").value = saved;
+    }
 
     window.renderMermaid = () => {
       const textarea = document.getElementById("mermaidInput");
       const output = document.getElementById("mermaidOutput");
-
-      // ✅ Clean code: convert tabs to spaces, normalize line endings
-      let code = textarea.value
-        .replace(/\t/g, "    ")
-        .replace(/\r/g, "")
-        .trim();
-
-      // ✅ Ensure each connection has a newline (to prevent line merging)
-      code = code.replace(/](?=\s*[A-Za-z(])/g, "]\n");
-
-      // ✅ Add flowchart header if missing
-      if (!/^flowchart\s+/i.test(code)) {
-        code = "flowchart TD\n" + code;
-      }
-
-      // ✅ Inject diagram
+      let code = textarea.value.replace(/\t/g, "    ").trim().replace(/\r/g, "");
+      if (!/^flowchart\s+/i.test(code)) code = "flowchart TD\n" + code;
       output.innerHTML = `<div class="mermaid">${code}</div>`;
 
-      // ✅ Try rendering
-      mermaid.run({ nodes: output.querySelectorAll(".mermaid") }).catch(err => {
-        output.innerHTML = `<p style="color:red;">❌ Error: ${err.message}</p>`;
-      });
+      mermaid
+        .run({ nodes: output.querySelectorAll(".mermaid") })
+        .then(() => {
+          nodes = Array.from(output.querySelectorAll("g.node"));
+          stepIndex = 0;
+          highlightStep();
+          saveToMemory();
+        })
+        .catch(err => {
+          output.innerHTML = `<p style="color:red;">❌ Error: ${err.message}</p>`;
+        });
     };
 
-    // Auto-render default diagram when page loads
-    window.addEventListener("DOMContentLoaded", () => renderMermaid());
+    function highlightStep() {
+      if (!nodes.length) return;
+      nodes.forEach(n => (n.style.filter = "none"));
+      if (stepIndex < 0) stepIndex = 0;
+      if (stepIndex >= nodes.length) stepIndex = nodes.length - 1;
+      nodes[stepIndex].style.filter = "drop-shadow(0 0 10px #2563eb)";
+    }
+
+    window.nextStep = () => {
+      if (stepIndex < nodes.length - 1) stepIndex++;
+      highlightStep();
+    };
+
+    window.prevStep = () => {
+      if (stepIndex > 0) stepIndex--;
+      highlightStep();
+    };
+
+    window.resetSteps = () => {
+      stepIndex = 0;
+      highlightStep();
+    };
+
+    window.playAnimation = () => {
+      if (playInterval) {
+        clearInterval(playInterval);
+        playInterval = null;
+        document.getElementById("playBtn").innerText = "▶️ Play Animation";
+        return;
+      }
+      document.getElementById("playBtn").innerText = "⏸️ Pause";
+      playInterval = setInterval(() => {
+        if (stepIndex < nodes.length - 1) {
+          stepIndex++;
+          highlightStep();
+        } else {
+          clearInterval(playInterval);
+          playInterval = null;
+          document.getElementById("playBtn").innerText = "▶️ Play Animation";
+        }
+      }, 1000);
+    };
+
+    window.exportPNG = () => {
+      const svg = document.querySelector("#mermaidOutput svg");
+      if (!svg) return alert("No diagram to export!");
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      const img = new Image();
+      const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(svgBlob);
+      img.onload = function () {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+        const a = document.createElement("a");
+        a.download = "flowchart.png";
+        a.href = canvas.toDataURL("image/png");
+        a.click();
+      };
+      img.src = url;
+    };
+
+    window.addEventListener("DOMContentLoaded", () => {
+      loadFromMemory();
+      renderMermaid();
+    });
   </script>
 
   <style>
@@ -61,7 +133,7 @@
       resize: vertical;
     }
     button {
-      margin-top: 10px;
+      margin: 6px;
       padding: 10px 20px;
       border: none;
       border-radius: 6px;
@@ -70,9 +142,7 @@
       cursor: pointer;
       font-size: 15px;
     }
-    button:hover {
-      background-color: #1d4ed8;
-    }
+    button:hover { background-color: #1d4ed8; }
     #mermaidOutput {
       background: #fff;
       padding: 20px;
@@ -86,24 +156,25 @@
 </head>
 
 <body>
-  <h1>🧭 My Flowchart Generator</h1>
-  <p>Type Mermaid code below and click <b>Generate Flowchart</b></p>
+  <h1>🧭 Interactive Flowchart Tutor</h1>
+  <p>Type Mermaid code below and click <b>Generate Flowchart</b>. Then step through or auto-play it!</p>
+
   <textarea id="mermaidInput">flowchart TD
-    A([Start]) --> B[Initialize a = 0, b = 1]
-    B --> C[Input n (number of terms)]
-    C --> D[Set i = 0]
-    D --> E{Is i < n?}
-    E -->|Yes| F[Print a]
-    F --> G[Next = a + b]
-    G --> H[a = b]
-    H --> I[b = next]
-    I --> J[i = i + 1]
-    J --> E
-    E -->|No| K([End])
+    A([Start]) --> B[Input n]
+    B --> C{Is n % 2 == 0?}
+    C -->|Yes| D[Print 'Even']
+    C -->|No| E[Print 'Odd']
+    D --> F([End])
+    E --> F
   </textarea>
 
   <br />
-  <button onclick="renderMermaid()">Generate Flowchart</button>
+  <button onclick="renderMermaid()">🔄 Generate</button>
+  <button onclick="prevStep()">⬅️ Prev</button>
+  <button onclick="nextStep()">➡️ Next</button>
+  <button id="playBtn" onclick="playAnimation()">▶️ Play Animation</button>
+  <button onclick="resetSteps()">⏮️ Reset</button>
+  <button onclick="exportPNG()">🖼️ Export PNG</button>
 
   <div id="mermaidOutput"></div>
 </body>
