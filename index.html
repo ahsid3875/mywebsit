@@ -1,36 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>🧭 My Flowchart Generator</title>
 
-  <!-- ✅ Use stable Mermaid 11.2.0 -->
+  <!-- ✅ Mermaid v11 stable build -->
   <script type="module">
-    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.2.0/dist/mermaid.esm.min.mjs";
+    import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";
+
+    // Initialize Mermaid once
     mermaid.initialize({ startOnLoad: false, theme: "default" });
 
     window.renderMermaid = () => {
-      let code = document.getElementById("mermaidInput").value;
+      const textarea = document.getElementById("mermaidInput");
+      const output = document.getElementById("mermaidOutput");
 
-      // 🧹 Clean up invisible spaces & line breaks
-      code = code
-        .trim()
-        .replace(/^\s*\n/, "") // remove first blank line
-        .replace(/\r/g, "");   // remove carriage returns (Windows bug)
-
-      // Automatically insert 'flowchart TD' if missing
+      // Clean and prepare code
+      let code = textarea.value.trim().replace(/\r/g, "");
       if (!/^flowchart\s+/i.test(code)) {
         code = "flowchart TD\n" + code;
       }
 
-      const output = document.getElementById("mermaidOutput");
-      output.innerHTML = code;
+      // Clear old diagram
+      output.innerHTML = `<div class="mermaid">${code}</div>`;
 
-      try {
-        mermaid.run({ nodes: [output] });
-      } catch (err) {
-        output.innerHTML = `<p style="color:red;">❌ Syntax error:<br>${err.message}</p>`;
-      }
+      // Render with Mermaid
+      mermaid.run({ nodes: output.querySelectorAll(".mermaid") }).catch(err => {
+        output.innerHTML = `<p style="color:red;">❌ Error: ${err.message}</p>`;
+      });
     };
 
     window.addEventListener("DOMContentLoaded", () => renderMermaid());
@@ -45,7 +42,7 @@
     }
     textarea {
       width: 90%;
-      height: 240px;
+      height: 220px;
       font-family: monospace;
       font-size: 15px;
       border-radius: 8px;
@@ -83,22 +80,22 @@
   <p>Type Mermaid code below and click <b>Generate Flowchart</b></p>
 
   <textarea id="mermaidInput">flowchart TD
-    A([Start]) --> B[Initialize a = 0, b = 1]
-    B --> C[Input n (number of terms)]
-    C --> D[Set i = 0]
-    D --> E{Is i < n?}
-    E -->|Yes| F[Print a]
-    F --> G[Next = a + b]
-    G --> H[a = b]
-    H --> I[b = next]
-    I --> J[i = i + 1]
-    J --> E
-    E -->|No| K([End])
-  </textarea>
+A([Start]) --> B[Initialize a = 0, b = 1]
+B --> C[Input n (number of terms)]
+C --> D[Set i = 0]
+D --> E{Is i < n?}
+E -->|Yes| F[Print a]
+F --> G[Next = a + b]
+G --> H[a = b]
+H --> I[b = next]
+I --> J[i = i + 1]
+J --> E
+E -->|No| K([End])
+</textarea>
 
   <br />
   <button onclick="renderMermaid()">Generate Flowchart</button>
 
-  <div id="mermaidOutput" class="mermaid"></div>
+  <div id="mermaidOutput"></div>
 </body>
 </html>
