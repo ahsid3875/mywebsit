@@ -16,96 +16,27 @@
       const textarea = document.getElementById("mermaidInput");
       const output = document.getElementById("mermaidOutput");
 
-      // ✅ Clean indentation — convert tabs to 4 spaces and normalize line breaks
+      // ✅ Clean code: convert tabs to spaces, normalize line endings
       let code = textarea.value
         .replace(/\t/g, "    ")
         .replace(/\r/g, "")
         .trim();
 
-      // ✅ Ensure each shape is on its own line
-      code = code.replace(/](?=[A-Za-z(])/g, "]\n");
+      // ✅ Ensure each connection has a newline (to prevent line merging)
+      code = code.replace(/](?=\s*[A-Za-z(])/g, "]\n");
 
-      // ✅ Automatically add flowchart type if missing
+      // ✅ Add flowchart header if missing
       if (!/^flowchart\s+/i.test(code)) {
         code = "flowchart TD\n" + code;
       }
 
-      // ✅ Clear old diagram
+      // ✅ Inject diagram
       output.innerHTML = `<div class="mermaid">${code}</div>`;
 
-      // ✅ Render new Mermaid diagram
+      // ✅ Try rendering
       mermaid.run({ nodes: output.querySelectorAll(".mermaid") }).catch(err => {
         output.innerHTML = `<p style="color:red;">❌ Error: ${err.message}</p>`;
       });
     };
 
-    // Auto-render once loaded
-    window.addEventListener("DOMContentLoaded", () => renderMermaid());
-  </script>
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f8fafc;
-      padding: 20px;
-      text-align: center;
-    }
-    textarea {
-      width: 90%;
-      height: 220px;
-      font-family: monospace;
-      font-size: 15px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      padding: 10px;
-      resize: vertical;
-    }
-    button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 6px;
-      background-color: #2563eb;
-      color: white;
-      cursor: pointer;
-      font-size: 15px;
-    }
-    button:hover {
-      background-color: #1d4ed8;
-    }
-    #mermaidOutput {
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      margin-top: 20px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-      text-align: left;
-      overflow-x: auto;
-    }
-  </style>
-</head>
-
-<body>
-  <h1>🧭 My Flowchart Generator</h1>
-  <p>Type Mermaid code below and click <b>Generate Flowchart</b></p>
-
-  <textarea id="mermaidInput">flowchart TD
-    A([Start]) --> B[Initialize a = 0, b = 1]
-    B --> C[Input n (number of terms)]
-    C --> D[Set i = 0]
-    D --> E{Is i < n?}
-    E -->|Yes| F[Print a]
-    F --> G[Next = a + b]
-    G --> H[a = b]
-    H --> I[b = next]
-    I --> J[i = i + 1]
-    J --> E
-    E -->|No| K([End])
-  </textarea>
-
-  <br />
-  <button onclick="renderMermaid()">Generate Flowchart</button>
-
-  <div id="mermaidOutput"></div>
-</body>
-</html>
+    // Auto-render default diagr
